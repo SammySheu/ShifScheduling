@@ -1,0 +1,59 @@
+@startuml
+title Employee Scheduling System - Class Diagram
+
+class Employee {
+    - name: str
+    - preferences: OrderedDict
+    - assigned_shifts: dict
+    --
+    + __init__(name: str, request_priority: int = 0)
+    + add_preference(day: str, preferred_shifts: List[str]): void
+    + get_days_working(): int
+    + is_working_on(day: str): bool
+    + assign_shift(day: str, shift: str): void
+    + __str__(): str
+}
+
+class Scheduler {
+    {static} + DAYS: List[str]
+    {static} + SHIFTS: List[str]
+    {static} + MAX_DAYS_PER_WEEK: int
+    {static} + MIN_EMPLOYEES_PER_SHIFT: int
+    - employees: List[Employee]
+    - schedule: Dict[str, Dict[str, List[Employee]]]
+    - need_to_fill_shifts: List[Tuple[str, str]]
+    --
+    + __init__()
+    + add_employee(employee: Employee): void
+    + create_schedule(records: int): void
+    + display_schedule(): void
+    - _initialize_schedule(): void
+    - _assign_preferred_shifts(employee: Employee): bool
+    - _try_assign_shift(employee: Employee, day: str, shift: str): bool
+    - _ensure_minimum_staffing(): void
+    - _find_available_employees(day: str): List[Employee]
+    - _display_employee_summary(): void
+}
+
+Employee "1" --> "0..*" Scheduler : assigned to
+Scheduler "1" o-- "0..*" Employee : manages
+
+note top of Employee
+Represents an employee with shift preferences
+and assigned shifts for the week.
+
+Uses OrderedDict to maintain preference order
+and tracks choice levels for priority scheduling.
+
+Implements __str__ for string representation.
+end note
+
+note bottom of Scheduler
+Core scheduling engine that:
+- Manages employee assignments
+- Enforces business rules (max days, min staffing)
+- Ensures minimum staffing requirements
+- Generates weekly schedules
+end note
+
+@enduml
