@@ -1,0 +1,122 @@
+@startuml Employee_Scheduling_System_Rust
+
+' Title and Styling
+' title Employee Scheduling System - Rust Structure Diagram
+' skinparam classAttributeIconSize 0
+' skinparam classFontSize 12
+' skinparam packageStyle rectangle
+
+' Employee Struct
+class Employee <<struct>> {
+  + name: String
+  + request_priority: i32
+  + preferences: HashMap<String, Vec<String>>
+  + assigned_shifts: HashMap<String, String>
+  + current_choice_level: usize
+  + choices_used: usize
+  __
+  + new(name: String, request_priority: i32) -> Self
+  + add_preference(&mut self, day: String, preferred_shifts: Vec<String>)
+  + get_days_working(&self) -> usize
+  + is_working_on(&self, day: &str) -> bool
+  + assign_shift(&mut self, day: String, shift: String)
+}
+
+' Scheduler Struct
+class Scheduler <<struct>> {
+  {static} + DAYS: [&str; 7]
+  {static} + SHIFTS: [&str; 3]
+  {static} + MAX_DAYS_PER_WEEK: usize
+  {static} + MIN_EMPLOYEES_PER_SHIFT: usize
+  + employees: Vec<Employee>
+  + schedule: HashMap<String, HashMap<String, Vec<Employee>>>
+  + need_to_fill_shifts: Vec<(String, String)>
+  __
+  + new() -> Self
+  + add_employee(&mut self, employee: Employee)
+  + create_schedule(&mut self, records: usize)
+  + display_schedule(&self)
+  - initialize_schedule(&mut self)
+  - assign_preferred_shifts(&mut self, employee_idx: usize) -> bool
+  - try_assign_shift(&mut self, employee_idx: usize, day: &str, shift: &str) -> bool
+  - ensure_minimum_staffing(&mut self)
+  - find_available_employees(&self, day: &str) -> Vec<usize>
+  - display_employee_summary(&self)
+}
+
+' Program Input Module
+class program_input <<module>> {
+  + user_interactive_input() -> (HashMap<String, Employee>, usize)
+  + get_data_from_csv(filename: &str) -> (HashMap<String, Employee>, usize)
+}
+
+' Main Module
+class main <<module>> {
+  + main()
+  + save_schedule_to_file(scheduler: &Scheduler, filename: &str) -> io::Result<()>
+}
+
+' Relationships
+Scheduler "1" o-- "0..*" Employee : manages >
+program_input ..> Employee : <<creates>>
+main ..> Scheduler : <<uses>>
+main ..> program_input : <<uses>>
+
+' Notes
+note right of Employee
+  Represents an employee with
+  shift preferences and assigned
+  shifts for the week.
+  
+  Uses HashMap for O(1) lookups
+  and Vec for ordered collections.
+  
+  Implements Clone and Display traits.
+end note
+
+note right of Scheduler
+  Core scheduling engine that:
+  - Manages employee assignments
+  - Enforces business rules
+  - Ensures minimum staffing
+  - Generates weekly schedules
+  
+  Uses owned data with Vec<Employee>
+  to avoid lifetime complexities.
+end note
+
+note bottom of program_input
+  Input handling module providing:
+  - Interactive user input via stdin
+  - CSV file loading via csv crate
+  
+  Returns: (employees_map, record_count)
+  where employees_map is HashMap<String, Employee>
+  
+  Uses Rust error handling with Result types.
+end note
+
+note bottom of main
+  Entry point that:
+  1. Displays menu
+  2. Collects input (interactive or CSV)
+  3. Creates scheduler
+  4. Generates schedule
+  5. Displays and optionally saves results
+  
+  Demonstrates Rust's ownership and
+  borrowing in function calls.
+end note
+
+note as N1
+  <b>Rust-Specific Features:</b>
+  - <b>Ownership</b>: Memory safety without GC
+  - <b>Borrowing</b>: &self for read, &mut self for write
+  - <b>Pattern Matching</b>: match expressions for control flow
+  - <b>Error Handling</b>: Result<T, E> and Option<T>
+  - <b>Traits</b>: Clone, Display for polymorphism
+  - <b>Type Safety</b>: Strong static typing at compile time
+end note
+
+@enduml
+
