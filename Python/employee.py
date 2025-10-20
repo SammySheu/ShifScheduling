@@ -5,16 +5,10 @@ from collections import OrderedDict
 class Employee:
     """Represents an employee with their shift preferences."""
 
-    def __init__(self, name: str, request_priority: int = 0):
+    def __init__(self, name: str):
         self.name = name
-        # CSV row order (lower = higher priority)
-        self.request_priority = request_priority
         self.preferences = OrderedDict()  # day -> shift preference
-        self.priority_preferences = {}  # day -> list of shifts in priority order
         self.assigned_shifts = {}  # day -> assigned shift
-        # 0 = first choice, 1 = second choice, etc.
-        self.current_choice_level = 0
-        self.choices_used = 0  # Track how many choices have been used
 
     def add_preference(self, day: str, preferred_shifts: List[str]):
         """
