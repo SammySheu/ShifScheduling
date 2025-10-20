@@ -3,7 +3,7 @@ Employee Scheduling System
 This application manages employee schedules for a company operating 7 days a week.
 """
 
-from program_input import get_employee_input_interactive, get_requests_from_csv
+from program_input import user_interactive_input, get_data_from_csv
 from scheduler import Scheduler
 
 
@@ -24,7 +24,7 @@ def main():
         choice = input("\nEnter choice (1 or 2): ").strip()
 
         if choice == '1':
-            employees, records = get_employee_input_interactive()
+            employees, records = user_interactive_input()
             break
         elif choice == '2':
             filename = input(
@@ -32,7 +32,7 @@ def main():
             if not filename:
                 filename = "test_data.csv"
 
-            employees, records = get_requests_from_csv(filename)
+            employees, records = get_data_from_csv(filename)
             if len(employees) == 0:
                 print("\nNo employees loaded. Exiting.")
                 return

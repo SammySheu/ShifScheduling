@@ -1,10 +1,9 @@
 from employee import Employee
-from scheduler import Scheduler
 import csv
 from typing import List, Tuple
 
 
-def get_employee_input_interactive() -> Tuple[List[Employee], int]:
+def user_interactive_input() -> Tuple[List[Employee], int]:
     """
     Interactive mode to get employee data from user input.
     Demonstrates: user input, validation, loops, conditionals.
@@ -67,7 +66,7 @@ def get_employee_input_interactive() -> Tuple[List[Employee], int]:
     return employees, records
 
 
-def get_requests_from_csv(filename: str = 'test_data.csv') -> Tuple[List[Employee], int]:
+def get_data_from_csv(filename: str = 'test_data.csv') -> Tuple[List[Employee], int]:
     """
     Load employee preferences from CSV file.
     Returns:
@@ -121,75 +120,3 @@ def get_requests_from_csv(filename: str = 'test_data.csv') -> Tuple[List[Employe
     except (IOError, OSError, csv.Error) as e:
         print(f"  ✗ Error reading CSV: {e}")
         return [], []
-
-
-def get_employees_from_csv(filename: str = 'test_data.csv') -> List[Employee]:
-    """
-    Load employee preferences from CSV file.
-    CSV format: Name, Day, Shift Preferences (comma-separated)
-    Row order determines priority (earlier = higher priority)
-
-    Demonstrates: file I/O, CSV parsing, data processing
-    """
-    print(f"\n=== Loading Employee Data from {filename} ===\n")
-
-    employees_dict = {}  # name -> employee object
-    row_priority = 0  # Track row order for priority
-
-    try:
-        with open(filename, 'r', encoding='utf-8') as csvfile:
-            csv_reader = csv.reader(csvfile)
-
-            for row in csv_reader:
-                # Skip empty rows
-                if not row or not row[0].strip():
-                    continue
-
-                # Parse CSV: Name, Day, Shift Preferences
-                if len(row) < 3:
-                    print(f"  ⚠ Skipping invalid row: {row}")
-                    continue
-
-                name = row[0].strip()
-                day = row[1].strip()
-                shift_prefs_raw = row[2].strip()
-
-                # Parse shift preferences (comma-separated)
-                shift_prefs = []
-                if shift_prefs_raw:
-                    # Split by comma and clean up
-                    shift_prefs = [s.strip().capitalize()
-                                   for s in shift_prefs_raw.split(',')]
-                    # Filter out empty strings
-                    shift_prefs = [s for s in shift_prefs if s]
-
-                if not shift_prefs:
-                    continue
-
-                # Create or get employee
-                if name not in employees_dict:
-                    employee = Employee(name, request_priority=row_priority)
-                    employees_dict[name] = employee
-                    row_priority += 1
-                else:
-                    employee = employees_dict[name]
-
-                # Add preference for this day
-                employee.add_preference(day, shift_prefs)
-
-                print(f"  ✓ {name} - {day}: {', '.join(shift_prefs)}")
-
-        employees = list(employees_dict.values())
-        print(
-            f"\n  Loaded {len(employees)} employees with {row_priority} preference rows")
-        print(
-            f"  Priority order (CSV row order): {', '.join([e.name for e in employees])}\n")
-
-        return employees
-
-    except FileNotFoundError:
-        print(f"  ✗ Error: File '{filename}' not found")
-        return []
-    except (IOError, OSError, csv.Error) as e:
-        print(f"  ✗ Error reading CSV: {e}")
-        return []

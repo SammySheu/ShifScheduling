@@ -1,0 +1,102 @@
+@startuml Employee_Scheduling_System
+
+' Title and Styling
+' title Employee Scheduling System - Class Diagram
+' skinparam classAttributeIconSize 0
+' skinparam classFontSize 12
+' skinparam packageStyle rectangle
+
+' Employee Class
+class Employee {
+  - name: str
+  - request_priority: int
+  - preferences: OrderedDict
+  - priority_preferences: dict
+  - assigned_shifts: dict
+  - current_choice_level: int
+  - choices_used: int
+  __
+  + __init__(name: str, request_priority: int = 0)
+  + add_preference(day: str, preferred_shifts: List[str]): void
+  + get_days_working(): int
+  + is_working_on(day: str): bool
+  + assign_shift(day: str, shift: str): void
+  + __str__(): str
+}
+
+' Scheduler Class
+class Scheduler {
+  {static} + DAYS: List[str]
+  {static} + SHIFTS: List[str]
+  {static} + MAX_DAYS_PER_WEEK: int
+  {static} + MIN_EMPLOYEES_PER_SHIFT: int
+  - employees: List[Employee]
+  - schedule: Dict[str, Dict[str, List[Employee]]]
+  - need_to_fill_shifts: List[Tuple[str, str]]
+  __
+  + __init__()
+  + add_employee(employee: Employee): void
+  + create_schedule(records: int): void
+  + display_schedule(): void
+  - _initialize_schedule(): void
+  - _assign_preferred_shifts(employee: Employee): bool
+  - _try_assign_shift(employee: Employee, day: str, shift: str): bool
+  - _ensure_minimum_staffing(): void
+  - _find_available_employees(day: str): List[Employee]
+  - _display_employee_summary(): void
+}
+
+' Program Input Module Functions
+class program_input <<module>> {
+  + user_interactive_input(): Tuple[Dict[str, Employee], int]
+  + get_data_from_csv(filename: str): Tuple[Dict[str, Employee], int]
+}
+
+' Main Module
+class main <<module>> {
+  + main(): void
+}
+
+' Relationships
+Scheduler "1" o-- "0..*" Employee : manages >
+program_input ..> Employee : <<creates>>
+main ..> Scheduler : <<uses>>
+main ..> program_input : <<uses>>
+
+' Notes
+note right of Employee
+  Represents an employee with
+  shift preferences and assigned
+  shifts for the week.
+  
+  Uses OrderedDict to maintain
+  preference order.
+end note
+
+note right of Scheduler
+  Core scheduling engine that:
+  - Manages employee assignments
+  - Enforces business rules
+  - Ensures minimum staffing
+  - Generates weekly schedules
+end note
+
+note bottom of program_input
+  Input handling module providing:
+  - Interactive user input
+  - CSV file loading
+  
+  Returns: (employees_dict, record_count)
+end note
+
+note bottom of main
+  Entry point that:
+  1. Displays menu
+  2. Collects input (interactive or CSV)
+  3. Creates scheduler
+  4. Generates schedule
+  5. Displays and optionally saves results
+end note
+
+@enduml
+
